@@ -1,7 +1,9 @@
 const express = require('express');
-
+const uploadCloud = require('../utils/uploadImages');
+const { upload } = require('../utils/cloudinary');
 const {
   getMe,
+  uploadUserPhoto,
   updateMe,
   deleteMe,
   getAllUsers,
@@ -34,7 +36,8 @@ router.use(protect);
 
 router.patch('/updateMyPassword', updatePassword);
 router.get('/getMe', getMe, getUser);
-router.patch('/updateMe', updateMe);
+// router.patch('/updateMe', uploadCloud.single('photo'), updateMe);
+router.patch('/updateMe', upload.single('photo'), uploadUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 // các route chỉ có admin mới dùng được

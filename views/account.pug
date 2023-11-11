@@ -13,7 +13,7 @@ block content
             nav.user-view__menu
                 ul.side-nav
                     +navItem('#', 'Settings', 'settings', true)
-                    +navItem('#', 'My bookings', 'briefcase', false)
+                    +navItem('/my-tours', 'My bookings', 'briefcase', false)
                     +navItem('#', 'My reviews', 'icon-star', false)
                     +navItem('#', 'Billing', 'credit-card', false)
                 if user.role === 'admin'
@@ -35,8 +35,9 @@ block content
                             label.form__label(for='email') Email address
                             input#email.form__input(type='email', value=`${user.email}`, required, name='email')
                         .form__group.form__photo-upload
-                            img.form__user-photo(src=`img/users/${user.photo}`, alt='User photo')
-                            a.btn-text(href='') Choose new photo
+                            img.form__user-photo(src=user.photo.startsWith("https") ? user.photo:`/img/users/${user.photo}`, alt='User photo')
+                            input.form__upload(type='file', accept='image/*', id='photo', name='photo')
+                            label(for='photo') choose new photo
                         .form__group.right
                             button.btn.btn--small.btn--green Save settings
                 .line &nbsp;

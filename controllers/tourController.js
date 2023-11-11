@@ -1,6 +1,8 @@
 const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
 
+const { cloudinary } = require('../utils/cloudinary');
+
 const {
   deleteOne,
   updateOne,
@@ -8,6 +10,52 @@ const {
   getOne,
   getAll,
 } = require('./factoryHandler');
+
+const uploadTourImages = (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) {
+    return next();
+  }
+
+  req.body.images = [];
+
+  cloudinary.uploader
+    .upload_stream(
+      {
+        folder: 'file-upload',
+        transformation: { width: 2000, height: 1333, crop: 'limit' },
+      },
+      (error, result) => {
+        if (error) {
+          return res.status(500).json({ error: 'Failed to upload' });
+        }
+
+        req.body.imageCover = result.secure_url;
+
+        req.files.images.map((file) => {
+          cloudinary.uploader
+            .upload_stream(
+              {
+                folder: 'file-upload',
+                transformation: { width: 2000, height: 1333, crop: 'limit' },
+              },
+              (error, result) => {
+                if (error) {
+                  return res.status(500).json({ error: 'Failed to upload' });
+                }
+
+                req.body.images.push(result.secure_url);
+
+                if (req.body.imageCover && req.body.images.length == 3) {
+                  next();
+                }
+              }
+            )
+            .end(file.buffer);
+        });
+      }
+    )
+    .end(req.files.imageCover[0].buffer);
+};
 
 const aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
@@ -101,6 +149,7 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
+  uploadTourImages,
   aliasTopTours,
   getAllTours,
   getTour,

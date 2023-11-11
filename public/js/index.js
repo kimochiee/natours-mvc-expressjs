@@ -3,7 +3,9 @@ import { login } from './login.js';
 import { displayMap } from './mapbox.js';
 
 const locations = JSON.parse(document.getElementById('map').dataset.locations);
-displayMap(locations);
+if (locations) {
+  displayMap(locations);
+}
 
 document.querySelector('.form').addEventListener('submit', (e) => {
   e.preventDefault();

@@ -33,7 +33,7 @@ const logout = async () => {
     console.log(res);
 
     if ((res.data.status = 'success')) {
-      location.reload(true);
+      location.assign('/');
     }
   } catch (error) {
     showAlert('error', 'There is some error when logging out');

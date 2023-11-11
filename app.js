@@ -15,6 +15,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoute');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 
 //app
 const app = express();
@@ -26,6 +27,8 @@ app.set('views', path.join(__dirname, 'views'));
 //Serving static files
 app.use(express.static(`${__dirname}/public`));
 
+//Security HTTP headers
+
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
@@ -34,12 +37,27 @@ app.use(
     },
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ['*'],
-        scriptSrc: ["* data: 'unsafe-eval' 'unsafe-inline' blob:"],
+        defaultSrc: ["'self'", 'https://*.mapbox.com', 'https://*.stripe.com'],
+        baseUri: ["'self'"],
+        blockAllMixedContent: [],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        frameAncestors: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+        objectSrc: ["'none'"],
+        scriptSrc: [
+          'https://cdnjs.cloudflare.com',
+          'https://api.mapbox.com',
+          'https://js.stripe.com/v3/',
+          'https://cdn.jsdelivr.net/npm/axios@1.3.5/+esm',
+          "'self'",
+          'blob:',
+        ],
+        scriptSrcAttr: ["'none'"],
+        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
       },
     },
   })
-); //Security HTTP headers
+);
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -77,6 +95,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

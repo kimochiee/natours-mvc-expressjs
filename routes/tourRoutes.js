@@ -1,6 +1,9 @@
 const express = require('express');
 
+const { upload } = require('../utils/cloudinary');
+
 const {
+  uploadTourImages,
   aliasTopTours,
   getAllTours,
   getTour,
@@ -35,7 +38,16 @@ router
 router
   .route('/:id')
   .get(getTour)
-  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
+  .patch(
+    protect,
+    restrictTo('admin', 'lead-guide'),
+    upload.fields([
+      { name: 'imageCover', maxCount: 1 },
+      { name: 'images', maxCount: 3 },
+    ]),
+    uploadTourImages,
+    updateTour
+  )
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
